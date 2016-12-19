@@ -51,7 +51,7 @@ import { PurgeRouter }          from './Routers/PurgeRouter';
 import DatabaseController       from './Controllers/DatabaseController';
 import SchemaCache              from './Controllers/SchemaCache';
 import ParsePushAdapter         from 'parse-server-push-adapter';
-import MongoStorageAdapter      from './Adapters/Storage/Mongo/MongoStorageAdapter';
+import MongooseStorageAdapter   from './Adapters/Storage/Mongoose/MongooseStorageAdapter';
 import PostgresStorageAdapter   from './Adapters/Storage/Postgres/PostgresStorageAdapter';
 
 import { ParseServerRESTController } from './ParseServerRESTController';
@@ -275,11 +275,16 @@ class ParseServer {
         collectionPrefix,
         databaseOptions
       });
+    // case 'mongo':
+    //   return new MongoStorageAdapter({
+    //     uri: databaseURI,
+    //     collectionPrefix,
+    //     mongoOptions: databaseOptions,
+    //   });
     default:
-      return new MongoStorageAdapter({
+      console.log('hiiiiiiiii3')
+      return new MongooseStorageAdapter({
         uri: databaseURI,
-        collectionPrefix,
-        mongoOptions: databaseOptions,
       });
     }
   }
@@ -321,6 +326,8 @@ class ParseServer {
           /* eslint-enable no-console */
           process.exit(0);
         } else {
+          console.log('errr')
+          console.log(err)
           throw err;
         }
       });

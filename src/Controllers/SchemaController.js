@@ -14,6 +14,8 @@
 // different databases.
 // TODO: hide all schema logic inside the database adapter.
 
+import logger                 from '../logger';
+
 const Parse = require('parse/node').Parse;
 
 const defaultColumns = Object.freeze({
@@ -370,7 +372,9 @@ export default class SchemaController {
         return Promise.resolve(allClasses);
       }
       return this._dbAdapter.getAllClasses()
-        .then(allSchemas => allSchemas.map(injectDefaultSchema))
+        .then(allSchemas => {
+          return allSchemas.map(injectDefaultSchema)
+        })
         .then(allSchemas => {
           return this._cache.setAllClasses(allSchemas).then(() => {
             return allSchemas;
