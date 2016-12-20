@@ -369,15 +369,14 @@ const transformUpdate = (className, restUpdate, parseFormatSchema) => {
   const mongooseUpdate = {};
   const acl = addLegacyACL(restUpdate);
   if (acl._rperm || acl._wperm || acl._acl) {
-    mongooseUpdate.$set = {};
     if (acl._rperm) {
-      mongooseUpdate.$set._rperm = acl._rperm;
+      mongooseUpdate._rperm = acl._rperm;
     }
     if (acl._wperm) {
-      mongooseUpdate.$set._wperm = acl._wperm;
+      mongooseUpdate._wperm = acl._wperm;
     }
     if (acl._acl) {
-      mongooseUpdate.$set._acl = acl._acl;
+      mongooseUpdate._acl = acl._acl;
     }
   }
   for (var restKey in restUpdate) {
@@ -393,8 +392,7 @@ const transformUpdate = (className, restUpdate, parseFormatSchema) => {
       mongooseUpdate[out.value.__op] = mongooseUpdate[out.value.__op] || {};
       mongooseUpdate[out.value.__op][out.key] = out.value.arg;
     } else {
-      mongooseUpdate['$set'] = mongooseUpdate['$set'] || {};
-      mongooseUpdate['$set'][out.key] = out.value;
+      mongooseUpdate[out.key] = out.value;
     }
   }
 
@@ -743,6 +741,8 @@ const nestedMongooseObjectToNestedParseObject = mongooseObject => {
 // Converts from a mongoose-format object to a REST-format object.
 // Does not strip out anything based on a lack of authentication.
 const mongooseObjectToParseObject = (className, mongooseObject, schema) => {
+  console.log('mongooseObjectToParseObject')
+  console.log({mongooseObject: mongooseObject})
   mongooseObject = mongooseObject.toObject();
 
   switch(typeof mongooseObject) {
