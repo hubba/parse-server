@@ -36,53 +36,25 @@ export default class MongooseCollection {
   }
 
   _rawFind(query, { skip, limit, sort, keys, maxTimeMS } = {}) {
-    console.log({'this._mongooseCollection': this._mongooseCollection})
     return new Promise((resolve, reject) => {
-      console.log({'this._mongooseCollection': this._mongooseCollection})
       this._mongooseCollection.find(query).exec((err, objects) => {
+        if (!!err) {
+          return reject(err);
+        }
 
-      if (!!err) {
-        return reject(err);
-      }
-
-      return resolve(objects);
-      // if (keys) {
-      //   findOperation = findOperation.project(keys);
-      // }
-      //
-      // if (maxTimeMS) {
-      //   findOperation = findOperation.maxTimeMS(maxTimeMS);
-      // }
-
-      // return findOperation.toArray();
+        return resolve(objects);
       });
     });
   }
 
   count(query, { skip, limit, sort, maxTimeMS } = {}) {
-    // const countOperation = this._mongooseCollection.count(query, { skip, limit, sort, maxTimeMS });
-    //
-    // return countOperation;
-
-    console.log({'this._mongooseCollection': this._mongooseCollection})
     return new Promise((resolve, reject) => {
-      console.log({'this._mongooseCollection': this._mongooseCollection})
       this._mongooseCollection.count(query).exec((err, objects) => {
+        if (!!err) {
+          return reject(err);
+        }
 
-      if (!!err) {
-        return reject(err);
-      }
-
-      return resolve(objects);
-      // if (keys) {
-      //   findOperation = findOperation.project(keys);
-      // }
-      //
-      // if (maxTimeMS) {
-      //   findOperation = findOperation.maxTimeMS(maxTimeMS);
-      // }
-
-      // return findOperation.toArray();
+        return resolve(objects);
       });
     });
   }
@@ -100,14 +72,25 @@ export default class MongooseCollection {
   }
 
   insertOne(object) {
-    return this._mongooseCollection.insertOne(object);
+    let newObject = new this._mongooseCollection(object);
+
+    return new Promise((resolve, reject) => {
+      newObject.save((err, savedObject) => {
+
+        if (!!err) {
+          return reject(err);
+        }
+
+        return resolve(savedObject);
+
+      });
+    });
   }
 
   // Atomically updates data in the database for a single (first) object that matched the query
   // If there is nothing that matches the query - does insert
   // Postgres Note: `INSERT ... ON CONFLICT UPDATE` that is available since 9.5.
   upsertOne(query, update) {
-    console.log('upsertOne')
     return this.findOne(query)
     .then(object => {
       _.extend(object, update);
@@ -117,9 +100,6 @@ export default class MongooseCollection {
           if (!!err) {
             return reject(err);
           }
-
-          console.log({object: object})
-          console.log({newObject: newObject})
 
           return resolve(newObject);
 
@@ -145,9 +125,6 @@ export default class MongooseCollection {
   }
 
   findAndModify(query, update) {
-    console.log('findAndModify')
-    console.log({query: query})
-    console.log({update: update})
     return this._mongooseCollection.findAndModify(query, [], update, { new: true });
   }
 

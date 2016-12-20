@@ -144,8 +144,6 @@ const valueAsDate = value => {
 
 function transformQueryKeyValue(className, key, value, schema) {
 
-  console.log( 'KEY ->>> ', key );
-
   switch(key) {
   case 'createdAt':
     if (valueAsDate(value)) {
@@ -352,14 +350,14 @@ const parseObjectToMongooseObjectForCreate = (className, restCreate, schema) => 
   }
 
   // Use the legacy mongoose format for createdAt and updatedAt
-  if (mongooseCreate.createdAt) {
-    mongooseCreate._created_at = new Date(mongooseCreate.createdAt.iso || mongooseCreate.createdAt);
-    delete mongooseCreate.createdAt;
-  }
-  if (mongooseCreate.updatedAt) {
-    mongooseCreate._updated_at = new Date(mongooseCreate.updatedAt.iso || mongooseCreate.updatedAt);
-    delete mongooseCreate.updatedAt;
-  }
+  // if (mongooseCreate.createdAt) {
+  //   mongooseCreate._created_at = new Date(mongooseCreate.createdAt.iso || mongooseCreate.createdAt);
+  //   delete mongooseCreate.createdAt;
+  // }
+  // if (mongooseCreate.updatedAt) {
+  //   mongooseCreate._updated_at = new Date(mongooseCreate.updatedAt.iso || mongooseCreate.updatedAt);
+  //   delete mongooseCreate.updatedAt;
+  // }
 
   return mongooseCreate;
 }
@@ -741,8 +739,6 @@ const nestedMongooseObjectToNestedParseObject = mongooseObject => {
 // Converts from a mongoose-format object to a REST-format object.
 // Does not strip out anything based on a lack of authentication.
 const mongooseObjectToParseObject = (className, mongooseObject, schema) => {
-  console.log('mongooseObjectToParseObject')
-  console.log({mongooseObject: mongooseObject})
   mongooseObject = mongooseObject.toObject();
 
   switch(typeof mongooseObject) {

@@ -166,22 +166,6 @@ export class MongooseStorageAdapter {
   // You cant create new classes
   createClass(className, schema) {
     return this.getClass(className)
-    // console.log('createClass')
-    // schema = convertParseSchemaToMongooseSchema(schema);
-    // console.log(schema)
-    // const mongooseObject = mongooseSchemaFromFieldsAndClassNameAndCLP(schema.fields, className, schema.classLevelPermissions);
-    // console.log(mongooseObject)
-    // mongooseObject._id = className;
-    // return this._schemaCollection()
-    // .then(schemaCollection => schemaCollection._collection.insertOne(mongooseObject))
-    // .then(result => MongooseSchemaCollection._TESTmongooseSchemaToParseSchema(result.ops[0]))
-    // .catch(error => {
-    //   if (error.code === 11000) { //Mongoose's duplicate key error
-    //     throw new Parse.Error(Parse.Error.DUPLICATE_VALUE, 'Class already exists.');
-    //   } else {
-    //     throw error;
-    //   }
-    // })
   }
 
   addFieldIfNotExists(className, fieldName, type) {
@@ -315,6 +299,7 @@ export class MongooseStorageAdapter {
   // and should infer from the type. Or maybe does need the schema for validations. Or maybe needs
   // the schem only for the legacy mongoose format. We'll figure that out later.
   createObject(className, schema, object) {
+    delete object.objectId // we will use the mongoose objectId
     schema = convertParseSchemaToMongooseSchema(schema);
     const mongooseObject = parseObjectToMongooseObjectForCreate(className, object, schema);
     return this._adaptiveCollection(className)
@@ -350,7 +335,6 @@ export class MongooseStorageAdapter {
 
   // Apply the update to all objects that match the given Parse Query.
   updateObjectsByQuery(className, schema, query, update) {
-    console.log('updateObjectsByQuery')
     schema = convertParseSchemaToMongooseSchema(schema);
     const mongooseUpdate = transformUpdate(className, update, schema);
     const mongooseWhere = transformWhere(className, query, schema);
@@ -361,25 +345,17 @@ export class MongooseStorageAdapter {
   // Atomically finds and updates an object based on query.
   // Return value not currently well specified.
   findOneAndUpdate(className, schema, query, update) {
-    console.log('findOneAndUpdate')
-    console.log({className:className})
-    console.log({schema:schema})
-    console.log({query:query})
-    console.log({update:update})
     schema = convertParseSchemaToMongooseSchema(schema);
     const mongooseUpdate = transformUpdate(className, update, schema);
     const mongooseWhere = transformWhere(className, query, schema);
     return this._adaptiveCollection(className)
     .then(collection => {
-      console.log({collection: collection})
       return collection.upsertOne(mongooseWhere, mongooseUpdate)
     })
     .then(result => {
-      console.log({result: result})
       return mongooseObjectToParseObject(className, result, schema)
     })
     .catch(error => {
-      console.log({error: error})
       if (error.code === 11000) { // Duplicate value
         throw new Parse.Error(Parse.Error.DUPLICATE_VALUE,
             'A duplicate value for a field with unique values was provided');

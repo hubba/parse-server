@@ -3,8 +3,6 @@ import Parse           from 'parse/node';
 
 function mongooseFieldToParseSchemaField(type) {
 
-  console.log({type: type})
-
   if (type[0] === '*') {
     return {
       type: 'Pointer',
@@ -111,13 +109,11 @@ class MongoSchemaCollection {
   }
 
   _fetchAllSchemasFrom_SCHEMA() {
-    console.log({'this._collection': this._collection})
     return this._collection._rawFind({})
     .then(schemas => schemas.map(mongoSchemaToParseSchema));
   }
 
   _fechOneSchemaFrom_SCHEMA(name: string) {
-    console.log({'this._collection1': this._collection})
     return this._collection._rawFind(_mongoSchemaQueryFromNameQuery(name), { limit: 1 }).then(results => {
       if (results.length === 1) {
         return mongoSchemaToParseSchema(results[0]);
