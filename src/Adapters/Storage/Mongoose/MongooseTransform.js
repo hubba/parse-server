@@ -1,6 +1,7 @@
 import log from '../../../logger';
 import _   from 'lodash';
 var mongodb = require('mongodb');
+var validator = require('validator');
 var Parse = require('parse/node').Parse;
 
 const transformKey = (className, fieldName, schema) => {
@@ -142,6 +143,9 @@ const valueAsDate = value => {
 }
 
 function transformQueryKeyValue(className, key, value, schema) {
+
+  console.log( 'KEY ->>> ', key );
+
   switch(key) {
   case 'createdAt':
     if (valueAsDate(value)) {
@@ -726,6 +730,10 @@ const nestedMongooseObjectToNestedParseObject = mongooseObject => {
       return BytesCoder.databaseToJSON(mongooseObject);
     }
 
+    if (BytesCoder.isValidObjectId(mongooseObject)) {
+      return mongooseObject;
+    }
+
     return _.mapValues(mongooseObject, nestedMongooseObjectToNestedParseObject);
   default:
     throw 'unknown js type';
@@ -925,6 +933,10 @@ var BytesCoder = {
 
   isValidDatabaseObject(object) {
     return (object instanceof mongodb.Binary) || this.isBase64Value(object);
+  },
+
+  isValidObjectId(object) {
+      return validator.isMongoId(object.toString());
   },
 
   JSONToDatabase(json) {
