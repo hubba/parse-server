@@ -49,7 +49,7 @@ const emptyCLPS = Object.freeze({
   create: {},
   update: {},
   delete: {},
-  addField: {},
+  addField: {'*': false},
 });
 
 const defaultCLPS = Object.freeze({
@@ -58,17 +58,23 @@ const defaultCLPS = Object.freeze({
   create: {'*': true},
   update: {'*': true},
   delete: {'*': true},
-  addField: {'*': true},
+  addField: {'*': false},
 });
 
-function mongoSchemaToParseSchema(mongoSchema) {
+const addFieldCLPS = Object.freeze({
+  addField: {'*': false},
+});
+
+function mongooseSchemaToParseSchema(mongooseSchema) {
+  console.log('mongooseSchemaToParseSchema')
   let clps = defaultCLPS;
-  if (mongoSchema._metadata && mongoSchema._metadata.class_permissions) {
-    clps = {...emptyCLPS, ...mongoSchema._metadata.class_permissions};
+  if (mongooseSchema._metadata && mongooseSchema._metadata.class_permissions) {
+    clps = {...emptyCLPS, ...mongooseSchema._metadata.class_permissions, ...addFieldCLPS};
   }
+  console.log({clps: clps})
   return {
-    className: mongoSchema._id,
-    fields: mongooseSchemaFieldsToParseSchemaFields(mongoSchema),
+    className: mongooseSchema._id,
+    fields: mongooseSchemaFieldsToParseSchemaFields(mongooseSchema),
     classLevelPermissions: clps,
   };
 }
@@ -110,13 +116,13 @@ class MongoSchemaCollection {
 
   _fetchAllSchemasFrom_SCHEMA() {
     return this._collection._rawFind({})
-    .then(schemas => schemas.map(mongoSchemaToParseSchema));
+    .then(schemas => schemas.map(mongooseSchemaToParseSchema));
   }
 
   _fechOneSchemaFrom_SCHEMA(name: string) {
     return this._collection._rawFind(_mongoSchemaQueryFromNameQuery(name), { limit: 1 }).then(results => {
       if (results.length === 1) {
-        return mongoSchemaToParseSchema(results[0]);
+        return mongooseSchemaToParseSchema(results[0]);
       } else {
         throw undefined;
       }
@@ -180,7 +186,7 @@ class MongoSchemaCollection {
 
 // Exported for testing reasons and because we haven't moved all mongo schema format
 // related logic into the database adapter yet.
-MongoSchemaCollection._TESTmongoSchemaToParseSchema = mongoSchemaToParseSchema
+MongoSchemaCollection._TESTmongooseSchemaToParseSchema = mongooseSchemaToParseSchema
 MongoSchemaCollection.parseFieldTypeToMongooseFieldType = parseFieldTypeToMongooseFieldType
 
 export default MongoSchemaCollection
