@@ -377,6 +377,14 @@ export class MongooseStorageAdapter {
     .then(result => {
       console.log({result: result})
       return mongooseObjectToParseObject(className, result, schema)
+    })
+    .catch(error => {
+      console.log({error: error})
+      if (error.code === 11000) { // Duplicate value
+        throw new Parse.Error(Parse.Error.DUPLICATE_VALUE,
+            'A duplicate value for a field with unique values was provided');
+      }
+      throw error;
     });
   }
 
