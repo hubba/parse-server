@@ -737,10 +737,6 @@ const nestedMongooseObjectToNestedParseObject = mongooseObject => {
 const mongooseObjectToParseObject = (className, mongooseObject, schema) => {
   mongooseObject = mongooseObject.toObject();
 
-  console.log(className)
-  console.log(mongooseObject)
-  console.log(schema)
-
   switch(typeof mongooseObject) {
   case 'string':
   case 'number':
@@ -783,10 +779,6 @@ const mongooseObjectToParseObject = (className, mongooseObject, schema) => {
     }
 
     for (var key in mongooseObject) {
-      console.log(className)
-      console.log(mongooseObject)
-      console.log(restObject)
-      console.log({key: key})
       switch(key) {
       case '_id':
         restObject['objectId'] = '' + mongooseObject[key];
@@ -880,8 +872,6 @@ const mongooseObjectToParseObject = (className, mongooseObject, schema) => {
       }
     }
 
-    console.log(0)
-
     const relationFieldNames = Object.keys(schema.fields).filter(fieldName => schema.fields[fieldName].type === 'Relation');
     const relationFields = {};
     relationFieldNames.forEach(relationFieldName => {
@@ -890,9 +880,6 @@ const mongooseObjectToParseObject = (className, mongooseObject, schema) => {
         className: schema.fields[relationFieldName].targetClass,
       }
     });
-
-    console.log(1)
-
 
     return { ...restObject, ...relationFields };
   }

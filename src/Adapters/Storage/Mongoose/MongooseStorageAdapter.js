@@ -143,7 +143,6 @@ export class MongooseStorageAdapter {
   }
 
   _schemaCollection() {
-    console.log({collection: MongooseSchemaCollectionName})
     return this.connect()
       .then(() => this._adaptiveCollection(MongooseSchemaCollectionName))
       .then(collection => new MongooseSchemaCollection(collection));
@@ -275,63 +274,6 @@ export class MongooseStorageAdapter {
   // schemas cannot be retrieved, returns a promise that rejects. Requirements for the
   // rejection reason are TBD.
   getAllClasses() {
-    // console.log(this._mongoose);
-    // console.log(this._mongoose.models)
-
-    // let results = [
-    //   {
-    // 		"className": "_User",
-    // 		"fields": {
-    // 			"objectId": {
-    // 				"type": "String"
-    // 			},
-    // 			"createdAt": {
-    // 				"type": "Date"
-    // 			},
-    // 			"updatedAt": {
-    // 				"type": "Date"
-    // 			},
-    // 			"ACL": {
-    // 				"type": "ACL"
-    // 			},
-    // 			"username": {
-    // 				"type": "String"
-    // 			},
-    // 			"password": {
-    // 				"type": "String"
-    // 			},
-    // 			"email": {
-    // 				"type": "String"
-    // 			},
-    // 			"emailVerified": {
-    // 				"type": "Boolean"
-    // 			},
-    // 			"authData": {
-    // 				"type": "Object"
-    // 			}
-    // 		},
-    // 		"classLevelPermissions": {
-    // 			"find": {
-    // 				"*": true
-    // 			},
-    // 			"get": {
-    // 				"*": true
-    // 			},
-    // 			"create": {
-    // 				"*": true
-    // 			},
-    // 			"update": {
-    // 				"*": true
-    // 			},
-    // 			"delete": {
-    // 				"*": true
-    // 			},
-    // 			"addField": {
-    // 				"*": true
-    // 			}
-    // 		}
-    // 	}
-    // ];
 
     let results = _.map(this._mongoose.models, this.schemaFromModel);
 
@@ -428,8 +370,6 @@ export class MongooseStorageAdapter {
   // Executes a find. Accepts: className, query in Parse format, and { skip, limit, sort }.
   find(className, schema, query, { skip, limit, sort, keys }) {
 
-    console.log({className: className})
-
     schema = convertParseSchemaToMongooseSchema(schema);
       const mongooseWhere = transformWhere(className, query, schema);
       const mongoSort = _.mapKeys(sort, (value, fieldName) => transformKey(className, fieldName, schema));
@@ -454,8 +394,6 @@ export class MongooseStorageAdapter {
         return promise;
       })
       .then((objects) => {
-        console.log({className: className})
-        console.log({objects: objects})
         return objects.map(object => mongooseObjectToParseObject(className, object, schema))
       });
 
@@ -502,7 +440,6 @@ export class MongooseStorageAdapter {
 
   // Used in tests
   _rawFind(className, query) {
-    console.log({className: className})
     return this._adaptiveCollection(className).then(collection => collection.find(query, {
       maxTimeMS: this._maxTimeMS,
     }));
@@ -513,14 +450,12 @@ export class MongooseStorageAdapter {
     schema = convertParseSchemaToMongooseSchema(schema);
     return this._adaptiveCollection(className)
     .then(collection => {
-      console.log('couttttt')
 
       let promise = new Promise((resolve, reject) => {
         collection.count(transformWhere(className, query, schema)).exec((err, objects) => {
           if (!!err) {
             return reject(err);
           } else {
-            console.log(objects)
             return resolve(objects);
           }
         });
