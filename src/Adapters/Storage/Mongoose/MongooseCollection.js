@@ -81,7 +81,7 @@ export default class MongooseCollection {
           return reject(err);
         }
 
-        return resolve(savedObject);
+        return resolve({ops: [savedObject]});
 
       });
     });
@@ -117,11 +117,24 @@ export default class MongooseCollection {
   }
 
   deleteOne(query) {
+    console.log('deleteOne')
     return this._mongooseCollection.deleteOne(query);
   }
 
   deleteMany(query) {
-    return this._mongooseCollection.deleteMany(query);
+    console.log('deleteMany')
+    console.log({query: query})
+    return new Promise((resolve, reject) => {
+      return this._mongooseCollection.remove(query, (err, newObject) => {
+
+        if (!!err) {
+          return reject(err);
+        }
+
+        return resolve(newObject);
+
+      });
+    });
   }
 
   findAndModify(query, update) {
