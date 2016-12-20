@@ -374,7 +374,10 @@ export class MongooseStorageAdapter {
       console.log({collection: collection})
       return collection.upsertOne(mongooseWhere, mongooseUpdate)
     })
-    .then(result => mongooseObjectToParseObject(className, result.value, schema));
+    .then(result => {
+      console.log({result: result})
+      return mongooseObjectToParseObject(className, result, schema)
+    });
   }
 
   // Hopefully we can get rid of this. It's only used for config and hooks.

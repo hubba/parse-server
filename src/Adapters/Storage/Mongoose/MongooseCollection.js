@@ -1,5 +1,6 @@
 // const mongodb = require('mongodb');
 // const Collection = mongodb.Collection;
+const _ = require('lodash');
 
 export default class MongooseCollection {
   _mongooseCollection;
@@ -86,6 +87,18 @@ export default class MongooseCollection {
     });
   }
 
+  findOne(query) {
+    return new Promise((resolve, reject) => {
+      this._mongooseCollection.findOne(query).exec((err, object) => {
+        if (!!err) {
+          return reject(err);
+        }
+
+        return resolve(object);
+      });
+    });
+  }
+
   insertOne(object) {
     return this._mongooseCollection.insertOne(object);
   }
@@ -94,7 +107,25 @@ export default class MongooseCollection {
   // If there is nothing that matches the query - does insert
   // Postgres Note: `INSERT ... ON CONFLICT UPDATE` that is available since 9.5.
   upsertOne(query, update) {
-    return this._mongooseCollection.update(query, update, { upsert: true })
+    console.log('upsertOne')
+    return this.findOne(query)
+    .then(object => {
+      _.extend(object, update);
+      return new Promise((resolve, reject) => {
+        object.save((err, newObject) => {
+
+          if (!!err) {
+            return reject(err);
+          }
+
+          console.log({object: object})
+          console.log({newObject: newObject})
+
+          return resolve(newObject);
+
+        });
+      });
+    });
   }
 
   updateOne(query, update) {
