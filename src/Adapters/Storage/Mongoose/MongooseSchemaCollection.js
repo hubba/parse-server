@@ -1,7 +1,10 @@
 import MongooseCollection from './MongooseCollection';
 import Parse           from 'parse/node';
 
-function mongoFieldToParseSchemaField(type) {
+function mongooseFieldToParseSchemaField(type) {
+
+  console.log({type: type})
+
   if (type[0] === '*') {
     return {
       type: 'Pointer',
@@ -29,10 +32,10 @@ function mongoFieldToParseSchemaField(type) {
 }
 
 const nonFieldSchemaKeys = ['_id', '_metadata', '_client_permissions'];
-function mongoSchemaFieldsToParseSchemaFields(schema) {
+function mongooseSchemaFieldsToParseSchemaFields(schema) {
   var fieldNames = Object.keys(schema).filter(key => nonFieldSchemaKeys.indexOf(key) === -1);
   var response = fieldNames.reduce((obj, fieldName) => {
-    obj[fieldName] = mongoFieldToParseSchemaField(schema[fieldName])
+    obj[fieldName] = mongooseFieldToParseSchemaField(schema[fieldName])
     return obj;
   }, {});
   response.ACL = {type: 'ACL'};
@@ -67,7 +70,7 @@ function mongoSchemaToParseSchema(mongoSchema) {
   }
   return {
     className: mongoSchema._id,
-    fields: mongoSchemaFieldsToParseSchemaFields(mongoSchema),
+    fields: mongooseSchemaFieldsToParseSchemaFields(mongoSchema),
     classLevelPermissions: clps,
   };
 }
@@ -85,7 +88,7 @@ function _mongoSchemaQueryFromNameQuery(name: string, query) {
 
 // Returns a type suitable for inserting into mongo _SCHEMA collection.
 // Does no validation. That is expected to be done in Parse Server.
-function parseFieldTypeToMongoFieldType({ type, targetClass }) {
+function parseFieldTypeToMongooseFieldType({ type, targetClass }) {
   switch (type) {
   case 'Pointer':  return `*${targetClass}`;
   case 'Relation': return `relation<${targetClass}>`;
@@ -173,7 +176,7 @@ class MongoSchemaCollection {
       return this.upsertSchema(
         className,
         { [fieldName]: { '$exists': false } },
-        { '$set' : { [fieldName]: parseFieldTypeToMongoFieldType(type) } }
+        { '$set' : { [fieldName]: parseFieldTypeToMongooseFieldType(type) } }
       );
     });
   }
@@ -182,6 +185,6 @@ class MongoSchemaCollection {
 // Exported for testing reasons and because we haven't moved all mongo schema format
 // related logic into the database adapter yet.
 MongoSchemaCollection._TESTmongoSchemaToParseSchema = mongoSchemaToParseSchema
-MongoSchemaCollection.parseFieldTypeToMongoFieldType = parseFieldTypeToMongoFieldType
+MongoSchemaCollection.parseFieldTypeToMongooseFieldType = parseFieldTypeToMongooseFieldType
 
 export default MongoSchemaCollection

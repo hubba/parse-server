@@ -282,7 +282,6 @@ class ParseServer {
     //     mongoOptions: databaseOptions,
     //   });
     default:
-      console.log('hiiiiiiiii3')
       return new MongooseStorageAdapter({
         uri: databaseURI,
       });
@@ -326,8 +325,6 @@ class ParseServer {
           /* eslint-enable no-console */
           process.exit(0);
         } else {
-          console.log('errr')
-          console.log(err)
           throw err;
         }
       });

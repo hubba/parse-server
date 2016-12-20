@@ -14,7 +14,6 @@ export default class MongoCollection {
   // This could be improved a lot but it's not clear if that's a good
   // idea. Or even if this behavior is a good idea.
   find(query, { skip, limit, sort, keys, maxTimeMS } = {}) {
-    console.log({query: query})  
     return this._rawFind(query, { skip, limit, sort, keys, maxTimeMS })
       .catch(error => {
         // Check for "no geoindex" error
