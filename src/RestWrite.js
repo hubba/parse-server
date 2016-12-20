@@ -58,36 +58,52 @@ function RestWrite(config, auth, className, query, data, originalData, clientSDK
 // status and location are optional.
 RestWrite.prototype.execute = function() {
   return Promise.resolve().then(() => {
+    console.log(0)
     return this.getUserAndRoleACL();
   }).then(() => {
+    console.log(1)
     return this.validateClientClassCreation();
   }).then(() => {
+    console.log(2)
     return this.handleInstallation();
   }).then(() => {
+    console.log(3)
     return this.handleSession();
   }).then(() => {
+    console.log(4)
     return this.validateAuthData();
   }).then(() => {
+    console.log(5)
     return this.runBeforeTrigger();
   }).then(() => {
+    console.log(6)
     return this.validateSchema();
   }).then(() => {
+    console.log(7)
     return this.setRequiredFieldsIfNeeded();
   }).then(() => {
+    console.log(8)
     return this.transformUser();
   }).then(() => {
+    console.log(9)
     return this.expandFilesForExistingObjects();
   }).then(() => {
+    console.log(10)
     return this.runDatabaseOperation();
   }).then(() => {
+    console.log(11)
     return this.createSessionTokenIfNeeded();
   }).then(() => {
+    console.log(12)
     return this.handleFollowup();
   }).then(() => {
+    console.log(13)
     return this.runAfterTrigger();
   }).then(() => {
+    console.log(14)
     return this.cleanUserAuthData();
   }).then(() => {
+    console.log(15)
     return this.response;
   })
 };

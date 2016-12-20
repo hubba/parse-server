@@ -419,6 +419,7 @@ export default class SchemaController {
   // have authorization (master key, or client class creation
   // enabled) before calling this function.
   addClassIfNotExists(className, fields = {}, classLevelPermissions) {
+    console.log('addClassIfNotExists')
     var validationError = this.validateNewClass(className, fields, classLevelPermissions);
     if (validationError) {
       return Promise.reject(validationError);
@@ -504,14 +505,21 @@ export default class SchemaController {
   // Returns a promise that resolves successfully to the new schema
   // object or fails with a reason.
   enforceClassExists(className) {
+    console.log('enforceClassExists')
+    console.log({className:className})
     if (this.data[className]) {
       return Promise.resolve(this);
     }
     // We don't have this class. Update the schema
+    console.log('a0')
     return this.addClassIfNotExists(className)
     // The schema update succeeded. Reload the schema
-    .then(() => this.reloadData({ clearCache: true }))
+    .then(() => {
+      console.log('a1')
+      return this.reloadData({ clearCache: true })
+    })
     .catch(() => {
+      console.log('a1 :(')
       // The schema update failed. This can be okay - it might
       // have failed because there's a race condition and a different
       // client is making the exact same schema update that we want.
@@ -519,7 +527,10 @@ export default class SchemaController {
       return this.reloadData({ clearCache: true });
     })
     .then(() => {
+      console.log('a2')
       // Ensure that the schema now validates
+      console.log({'className': className})
+      console.log({'this.data': this.data})
       if (this.data[className]) {
         return this;
       } else {
@@ -527,6 +538,7 @@ export default class SchemaController {
       }
     })
     .catch(() => {
+      console.log('a2 :(')
       // The schema still doesn't validate. Give up
       throw new Parse.Error(Parse.Error.INVALID_JSON, 'schema class name does not revalidate');
     });
@@ -594,6 +606,10 @@ export default class SchemaController {
   // The className must already be validated.
   // If 'freeze' is true, refuse to update the schema for this field.
   enforceFieldExists(className, fieldName, type) {
+    console.log('enforceFieldExists')
+    console.log({className: className})
+    console.log({fieldName: fieldName})
+    console.log({type: type})
     if (fieldName.indexOf(".") > 0) {
       // subdocument key (x.y) => ok if x is of type 'object'
       fieldName = fieldName.split(".")[ 0 ];
@@ -692,13 +708,20 @@ export default class SchemaController {
   // Returns a promise that resolves to the new schema if this object is
   // valid.
   validateObject(className, object, query) {
+
+    console.log({className: className})
+    console.log({object: object})
+    console.log({query: query})
+
     let geocount = 0;
     let promise = this.enforceClassExists(className);
     for (const fieldName in object) {
+      console.log({fieldName: fieldName})
       if (object[fieldName] === undefined) {
         continue;
       }
       const expected = getType(object[fieldName]);
+      console.log({expected: expected})
       if (expected === 'GeoPoint') {
         geocount++;
       }
@@ -718,20 +741,32 @@ export default class SchemaController {
         continue;
       }
 
-      promise = promise.then(schema => schema.enforceFieldExists(className, fieldName, expected));
+      console.log('hello')
+      promise = promise.then(schema => {
+        console.log({shcema1: schema})
+        return schema.enforceFieldExists(className, fieldName, expected)
+      });
     }
+    console.log('goodbye')
     promise = thenValidateRequiredColumns(promise, className, object, query);
     return promise;
   }
 
   // Validates that all the properties are set for the object
   validateRequiredColumns(className, object, query) {
+    console.log('validateRequiredColumns!')
+    console.log({className: className})
+    console.log({object: object})
+    console.log({query: query})
+    console.log({requiredColumns: requiredColumns})
     const columns = requiredColumns[className];
+    console.log({columns: columns})
     if (!columns || columns.length == 0) {
       return Promise.resolve(this);
     }
 
     const missingColumns = columns.filter(function(column){
+      console.log({column: column});
       if (query && query.objectId) {
         if (object[column] && typeof object[column] === "object") {
           // Trying to delete a required column
@@ -743,11 +778,14 @@ export default class SchemaController {
       return !object[column]
     });
 
+    console.log({'missingColumns.length': missingColumns.length})
     if (missingColumns.length > 0) {
       throw new Parse.Error(
         Parse.Error.INCORRECT_TYPE,
         missingColumns[0]+' is required.');
     }
+
+    console.log('done')
     return Promise.resolve(this);
   }
 
@@ -872,7 +910,13 @@ function buildMergedSchemaObject(existingFields, putRequest) {
 // Given a schema promise, construct another schema promise that
 // validates this field once the schema loads.
 function thenValidateRequiredColumns(schemaPromise, className, object, query) {
+  console.log('thenValidateRequiredColumns')
+  console.log({schemaPromise: schemaPromise})
+  console.log({className: className})
+  console.log({object: object})
+  console.log({query: query})
   return schemaPromise.then((schema) => {
+    console.log({schema: schema})
     return schema.validateRequiredColumns(className, object, query);
   });
 }
