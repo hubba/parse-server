@@ -252,10 +252,23 @@ export class MongooseStorageAdapter {
       className = '_User';
     }
 
-    _.each(model.schema.paths, (path) => {
+    _.forEach(model.schema.obj, function(value, key) {
 
-      fields[path.path] = {
-        type: path.instance
+      if ( !!model.schema.paths[key] ) {
+
+        if (  model.schema.paths[key].instance === 'Mixed' ) {
+          fields[key] = {
+              type: 'Object'
+          }
+        } else {
+          fields[key] = {
+            type: model.schema.paths[key].instance
+          }
+        }
+      } else {
+          fields[key] = {
+              type: 'Object'
+          }
       }
 
     });
