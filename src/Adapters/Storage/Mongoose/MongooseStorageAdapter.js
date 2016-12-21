@@ -382,29 +382,24 @@ export class MongooseStorageAdapter {
   // Executes a find. Accepts: className, query in Parse format, and { skip, limit, sort }.
   find(className, schema, query, { skip, limit, sort, keys }) {
 
+    console.log({sort:sort})
+
     schema = convertParseSchemaToMongooseSchema(schema);
       const mongooseWhere = transformWhere(className, query, schema);
-      const mongoSort = _.mapKeys(sort, (value, fieldName) => transformKey(className, fieldName, schema));
-      const mongoKeys = _.reduce(keys, (memo, key) => {
+      const mongoooseSort = _.map(sort, (value, fieldName) => [transformKey(className, fieldName, schema), value]);
+      const mongooseKeys = _.reduce(keys, (memo, key) => {
         memo[transformKey(className, key, schema)] = 1;
         return memo;
       }, {});
 
     return this._adaptiveCollection(className)
-      .then(collection => collection.find(mongooseWhere))
-      //
-      //   let promise = new Promise((resolve, reject) => {
-      //     collection.find(mongooseWhere).exec((err, objects) => {
-      //       if (!!err) {
-      //         return reject(err);
-      //       } else {
-      //         return resolve(objects);
-      //       }
-      //     });
-      //   });
-      //
-      //   return promise;
-      // })
+      .then(collection => collection.find(mongooseWhere, {
+        skip,
+        limit,
+        sort: mongoooseSort,
+        keys: mongooseKeys,
+        maxTimeMS: this._maxTimeMS,
+      }))
       .then((objects) => {
         return objects.map(object => mongooseObjectToParseObject(className, object, schema))
       });
