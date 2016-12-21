@@ -15,6 +15,9 @@ export default class MongooseCollection {
   // This could be improved a lot but it's not clear if that's a good
   // idea. Or even if this behavior is a good idea.
   find(query, { skip, limit, sort, keys, maxTimeMS } = {}) {
+
+    console.log({sort: sort})
+
     return this._rawFind(query, { skip, limit, sort, keys, maxTimeMS })
       .catch(error => {
         // Check for "no geoindex" error
@@ -36,8 +39,10 @@ export default class MongooseCollection {
   }
 
   _rawFind(query, { skip, limit, sort, keys, maxTimeMS } = {}) {
+    console.log({sort: sort})
+    console.log({'_.toArray(sort)': _.toArray(sort)})
     return new Promise((resolve, reject) => {
-      this._mongooseCollection.find(query).exec((err, objects) => {
+      this._mongooseCollection.find(query).sort(sort).exec((err, objects) => {
         if (!!err) {
           return reject(err);
         }
