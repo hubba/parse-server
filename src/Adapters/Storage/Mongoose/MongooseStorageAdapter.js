@@ -15,9 +15,9 @@ import Parse                 from 'parse/node';
 import _                     from 'lodash';
 import defaults              from '../../../defaults';
 
+
 const mongodb = require('mongodb');
 const MongoClient = mongodb.MongoClient;
-
 
 const MongooseSchemaCollectionName = '_SCHEMA';
 
@@ -99,6 +99,8 @@ export class MongooseStorageAdapter {
 
     // MaxTimeMS is not a global MongooseDB client option, it is applied per operation.
     this._maxTimeMS = mongooseOptions.maxTimeMS;
+
+    require('./models/jobStatus.model').register(this._mongoose);
   }
 
   connect() {
@@ -131,6 +133,7 @@ export class MongooseStorageAdapter {
   }
 
   _adaptiveCollection(name: string) {
+    console.log(_.keys(this._mongoose.models))
     return new Promise((resolve) => {
       if (name === '_User') {
         return resolve(new MongooseCollection(this._mongoose.models['User']));
@@ -376,7 +379,7 @@ export class MongooseStorageAdapter {
   // Executes a find. Accepts: className, query in Parse format, and { skip, limit, sort }.
   find(className, schema, query, { skip, limit, sort, keys }) {
 
-    console.log({sort:sort})
+    console.log({className:className})
 
     schema = convertParseSchemaToMongooseSchema(schema);
       const mongooseWhere = transformWhere(className, query, schema);

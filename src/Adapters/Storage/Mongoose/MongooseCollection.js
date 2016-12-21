@@ -16,7 +16,7 @@ export default class MongooseCollection {
   // idea. Or even if this behavior is a good idea.
   find(query, { skip, limit, sort, keys, maxTimeMS } = {}) {
 
-    console.log({sort: sort})
+    console.log({'this._mongoCollection': this._mongoCollection})    
 
     return this._rawFind(query, { skip, limit, sort, keys, maxTimeMS })
       .catch(error => {
